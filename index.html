@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K8s Demo</title>
+<style>
+ body{font-family:sans-serif;max-width:600px;margin:30px auto;padding:0 12px}
+ input{padding:8px;width:60%} button{padding:8px 14px}
+ table{width:100%;border-collapse:collapse;margin-top:20px}
+ td,th{border-bottom:1px solid #ddd;padding:6px;text-align:left}
+ .PENDING{color:#d97706}.PROCESSED{color:#16a34a;font-weight:bold}
+</style></head><body>
+<h2>Order Demo<br><small>Frontend → Backend → RabbitMQ → Worker → Postgres</small></h2>
+<input id="item" placeholder="Item name"> <button onclick="add()">Place order</button>
+<table><thead><tr><th>ID</th><th>Item</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table>
+<script>
+async function load(){
+  const r = await fetch('/api/orders'); const d = await r.json();
+  document.getElementById('rows').innerHTML =
+    d.map(o=>`<tr><td>${o.id}</td><td>${o.item}</td><td class="${o.status}">${o.status}</td></tr>`).join('');
+}
+async function add(){
+  const i = document.getElementById('item');
+  if(!i.value) return;
+  await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item:i.value})});
+  i.value=''; load();
+}
+load(); setInterval(load, 2000);
+</script></body></html>

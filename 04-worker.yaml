@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: worker, namespace: demo }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: worker } }
+  template:
+    metadata: { labels: { app: worker } }
+    spec:
+      containers:
+      - name: worker
+        image: demo/backend:1.0
+        imagePullPolicy: IfNotPresent
+        command: ["node", "worker.js"]
+        env:
+        - { name: DB_HOST, value: postgres }
+        - { name: DB_USER, valueFrom: { secretKeyRef: { name: app-secrets, key: DB_USER } } }
+        - { name: DB_PASSWORD, valueFrom: { secretKeyRef: { name: app-secrets, key: DB_PASSWORD } } }
+        - { name: DB_NAME, valueFrom: { secretKeyRef: { name: app-secrets, key: DB_NAME } } }
+        - { name: RABBIT_URL, valueFrom: { secretKeyRef: { name: app-secrets, key: RABBIT_URL } } }
